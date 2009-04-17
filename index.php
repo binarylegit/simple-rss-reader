@@ -24,7 +24,8 @@
 	$rss_reader->set_file_to_parse("http://codingnotes.alephcipher.com/feed/");
 	$rss_data = $rss_reader->parse_file();
 	//var_dump($rss_data);
-	echo $rss_reader->rss_array_to_html($rss_data);
+	//echo RSSReader::rss_array_to_html($rss_data); // smallest possible function call
+	echo RSSReader::rss_array_to_html($rss_data, 0, "1110000000", true);
 ?>
 
 </body>
