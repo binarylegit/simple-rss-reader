@@ -10,16 +10,80 @@ class RSSReader
 	private $rss_data = array();
 
 	// turn the array produced from parse_file into an html list
-	public function rss_array_to_html($rss_array)
+	// summary length 0 means no summarizing, length specifies characters to the nearest word
+	public static function rss_array_to_html($rss_array, $summary_length = 100, $elements_to_print = "1111111111", $href_title = false)
 	{
+		// unnecessary
+		//$element_print = str_split($elements_to_print);
 
 		$element_list = "";
 		for($i = 1; $i <= $rss_array["item_count"]; $i++)
 		{
 			$cur_str = "item_" . $i;
 			$element_list .= "<ul>\n";
-			$element_list .= "\t<li class=\"rss_title\">" . $rss_array[$cur_str]["TITLE"] . "</li>\n";
-			$element_list .= "\t<li class=\"rss_pubdate\">" . $rss_array[$cur_str]["PUBDATE"] . "</li>\n";
+			if($elements_to_print[0] == 1)
+			{
+				if($href_title)
+				{
+					$element_list .= "\t<li class=\"rss_title\"><a href=\"" . $rss_array[$cur_str]["LINK"] . "\">" . $rss_array[$cur_str]["TITLE"] . "</a></li>\n";
+				} else {
+					$element_list .= "\t<li class=\"rss_title\">" . $rss_array[$cur_str]["TITLE"] . "</li>\n";
+				}
+			}
+			if($elements_to_print[1] == 1)
+			{
+				$element_list .= "\t<li class=\"rss_link\">" . $rss_array[$cur_str]["LINK"] . "</li>\n";
+			}
+			if($elements_to_print[2] == 1)
+			{
+				// TODO: eventually the logic of summarizing to the nearest word should be broken out into a new function
+				$desc = strip_tags($rss_array[$cur_str]["DESCRIPTION"]);
+
+				if($summary_length != 0)
+				{
+					$cur_char = $desc[$summary_length];
+					while($cur_char != " ")
+					{
+						$summary_length--;
+						$cur_char = $desc[$summary_length];
+					}
+
+					$desc = substr($desc, 0, $summary_length);
+				}
+					
+				$element_list .= "\t<li class=\"rss_description\">" . $desc . "</li>\n";
+			}
+			if($elements_to_print[3] == 1)
+			{
+				$element_list .= "\t<li class=\"rss_author\">" . $rss_array[$cur_str]["AUTHOR"] . "</li>\n";
+			}
+			if($elements_to_print[4] == 1)
+			{
+				$element_list .= "\t<li class=\"rss_category\">" . $rss_array[$cur_str]["CATEGORY"] . "</li>\n";
+			}
+			if($elements_to_print[5] == 1)
+			{
+				$element_list .= "\t<li class=\"rss_comments\">" . $rss_array[$cur_str]["COMMENTS"] . "</li>\n";
+			}
+			if($elements_to_print[6] == 1)
+			{
+				// TODO: figure out how to deal with this element
+				//$element_list .= "\t<li class=\"rss_enclosure\">" . $rss_array[$cur_str][""] . "</li>\n";
+			}
+			if($elements_to_print[7] == 1)
+			{
+				$element_list .= "\t<li class=\"rss_guid\">" . $rss_array[$cur_str]["GUID"] . "</li>\n";
+			}
+			if($elements_to_print[8] == 1)
+			{
+				$element_list .= "\t<li class=\"rss_pubdate\">" . $rss_array[$cur_str]["PUBDATE"] . "</li>\n";
+			}
+			if($elements_to_print[9] == 1)
+			{
+				// TODO: this element has attributes
+				$element_list .= "\t<li class=\"rss_source\">" . $rss_array[$cur_str]["SOURCE"] . "</li>\n";
+			}
+
 			$element_list .= "</ul><br />\n";
 		}
 
