@@ -1,16 +1,40 @@
 <?PHP
 
+/**
+ * RSSReader is designed to take an rss file and parse it's items into an array,
+ * then that array can be turned into an HTML list via the static function 
+ * rss_array_to_html().
+ *
+ * WARNING: This class is still very much under initial design and the 
+ * function signatures, and function outputs are likely to change!
+ * USE WITH CAUTION.
+ * 
+ * A very simple sample use would be:
+ *	include_once("rss_reader.php");
+ *	$rss_reader = new RSSReader();
+ *	$rss_reader->set_file_to_parse("http://codingnotes.alephcipher.com");
+ *	$rss_data = $rss_reader->parse_file();
+ *	echo RSSReader::rss_array_to_html($rss_data);
+ *
+ *
+ */
 class RSSReader
 {
 	
-	private $rss_file_to_parse;
-	private $current_element_name;
-	private $inside_item_element = False;
-	private $current_item_name;
-	private $rss_data = array();
+	private $rss_file_to_parse; // a uri of the file that will be parsed
+	private $current_element_name; // the element name that is currently being parsed
+	private $inside_item_element = False; // state information, are we inside an rss <ITEM>?
+	private $current_item_name; // the array name (not rss related) of the current item being parsed
+	private $rss_data = array(); // the array to be filled with RSS Item arrays
+
+
+
+
 
 	// turn the array produced from parse_file into an html list
 	// summary length 0 means no summarizing, length specifies characters to the nearest word
+	// WARNING: this function's signature is very likely to change.
+	// TODO: increase the documentation for this function
 	public static function rss_array_to_html($rss_array, $summary_length = 100, $elements_to_print = "1111111111", $href_title = false)
 	{
 		// unnecessary
@@ -91,6 +115,11 @@ class RSSReader
 		
 	}
 
+	/**
+	 * Simple setter function to set the current file to be parsed
+	 * 
+	 * @param $rss_file The uri of a file to parse
+	 */
 	public function set_file_to_parse($rss_file)
 	{
 		$this->rss_file_to_parse = $rss_file;
@@ -98,6 +127,7 @@ class RSSReader
 	}
 		
 
+	// handles the action to take when an rss element is reached
 	private function rss_start_element_handler($parser, $name, $attribs)
 	{
 		/* DEBUG OUT
@@ -121,6 +151,7 @@ class RSSReader
 	}
 
 
+	// handles the action to take when leaving an rss element
 	private function rss_end_element_handler($parser, $name)
 	{
 		// print "end of element: " . $name . "<br />"; // DEBUG
@@ -138,6 +169,7 @@ class RSSReader
 		}
 	}
 
+	// handles the character data within rss elements
 	private function cdata_handler($parser, $data)
 	{
 		if($this->inside_item_element && $this->current_element_name != "" && $this->current_element_name != "ITEM")
@@ -152,7 +184,10 @@ class RSSReader
  	* this is the main function for the rss_reader, it takes either a local relative or absolute
  	* resource or a non-local http absolute resource.  It returns an array with each item in the 
  	* array being one rss <item> in an html context.
+	* 
+	* @return returns an array containing other arrays which contain the information inside RSS <ITEM> tags
  	*/
+	// TODO: ^^ make this documentation more thorough
 	public function parse_file()
 	{
 
