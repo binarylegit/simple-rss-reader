@@ -1,0 +1,18 @@
+Simple Rss Reader
+
+This is a simple single class RSS reader.  Its purpose is to provide a 
+streamlined php approach to taking RSS feads and turning them into
+HTML that can be styled with CSS.  This prevents having to create custom
+xslt pages for the transformation.
+
+The file rss_reader.php contains the class RSSReader which performs all of 
+duties of retrieving an rss file and transforming first into an array
+and then providing the option of turning that array into an html list
+with various customization options.
+
+The file index.php is provided solely as a testbed for development or as an
+example of how to use RSSReader, it is not intended as a neccessary element
+of the project to run, it is purely optional.
+
+I welcome feedback/comments/bug reports or what have you, e-mail me at:
+legit [at] alephcipher [dot] com
