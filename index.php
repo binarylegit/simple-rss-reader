@@ -25,7 +25,7 @@
 	$rss_data = $rss_reader->parse_file();
 	//var_dump($rss_data);
 	//echo RSSReader::rss_array_to_html($rss_data); // smallest possible function call
-	echo RSSReader::rss_array_to_html($rss_data, 0, "1110000000", true);
+	echo RSSReader::rss_array_to_html($rss_data, 7, 0, "1110000000", true);
 ?>
 
 </body>
