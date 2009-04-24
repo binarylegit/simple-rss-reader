@@ -33,30 +33,39 @@ class RSSReader
 
 	// turn the array produced from parse_file into an html list
 	// summary length 0 means no summarizing, length specifies characters to the nearest word
+	// no_of_items - 0 means all items
 	// WARNING: this function's signature is very likely to change.
 	// TODO: increase the documentation for this function
-	public static function rss_array_to_html($rss_array, $summary_length = 100, $elements_to_print = "1111111111", $href_title = false)
+	public static function rss_array_to_html($rss_array, $no_of_items = 0, $summary_length = 100, $elements_to_print = "1111111111", $href_title = false)
 	{
 		// unnecessary
 		//$element_print = str_split($elements_to_print);
+		if( ( $no_of_items == 0 ) || ( $no_of_items > $rss_array["item_count"] ) )
+		{
+			$max_items = $rss_array["item_count"];
+		} else {
+			$max_items = $no_of_items;
+		}
+
+		echo "max_items: " . $max_items . "<br />";
 
 		$element_list = "";
-		for($i = 1; $i <= $rss_array["item_count"]; $i++)
+		for($i = 1; $i <= $max_items; $i++)
 		{
 			$cur_str = "item_" . $i;
-			$element_list .= "<ul>\n";
+			$element_list .= "<div class=\"rss_container\">\n";
 			if($elements_to_print[0] == 1)
 			{
 				if($href_title)
 				{
-					$element_list .= "\t<li class=\"rss_title\"><a href=\"" . $rss_array[$cur_str]["LINK"] . "\">" . $rss_array[$cur_str]["TITLE"] . "</a></li>\n";
+					$element_list .= "\t<div class=\"rss_title\"><a href=\"" . $rss_array[$cur_str]["LINK"] . "\">" . $rss_array[$cur_str]["TITLE"] . "</a></div>\n";
 				} else {
-					$element_list .= "\t<li class=\"rss_title\">" . $rss_array[$cur_str]["TITLE"] . "</li>\n";
+					$element_list .= "\t<div class=\"rss_title\">" . $rss_array[$cur_str]["TITLE"] . "</div>\n";
 				}
 			}
 			if($elements_to_print[1] == 1)
 			{
-				$element_list .= "\t<li class=\"rss_link\">" . $rss_array[$cur_str]["LINK"] . "</li>\n";
+				$element_list .= "\t<div class=\"rss_link\">" . $rss_array[$cur_str]["LINK"] . "</div>\n";
 			}
 			if($elements_to_print[2] == 1)
 			{
@@ -75,40 +84,40 @@ class RSSReader
 					$desc = substr($desc, 0, $summary_length);
 				}
 					
-				$element_list .= "\t<li class=\"rss_description\">" . $desc . "</li>\n";
+				$element_list .= "\t<div class=\"rss_description\">" . $desc . "</div>\n";
 			}
 			if($elements_to_print[3] == 1)
 			{
-				$element_list .= "\t<li class=\"rss_author\">" . $rss_array[$cur_str]["AUTHOR"] . "</li>\n";
+				$element_list .= "\t<div class=\"rss_author\">" . $rss_array[$cur_str]["AUTHOR"] . "</div>\n";
 			}
 			if($elements_to_print[4] == 1)
 			{
-				$element_list .= "\t<li class=\"rss_category\">" . $rss_array[$cur_str]["CATEGORY"] . "</li>\n";
+				$element_list .= "\t<div class=\"rss_category\">" . $rss_array[$cur_str]["CATEGORY"] . "</div>\n";
 			}
 			if($elements_to_print[5] == 1)
 			{
-				$element_list .= "\t<li class=\"rss_comments\">" . $rss_array[$cur_str]["COMMENTS"] . "</li>\n";
+				$element_list .= "\t<div class=\"rss_comments\">" . $rss_array[$cur_str]["COMMENTS"] . "</div>\n";
 			}
 			if($elements_to_print[6] == 1)
 			{
 				// TODO: figure out how to deal with this element
-				//$element_list .= "\t<li class=\"rss_enclosure\">" . $rss_array[$cur_str][""] . "</li>\n";
+				//$element_list .= "\t<div class=\"rss_enclosure\">" . $rss_array[$cur_str][""] . "</div>\n";
 			}
 			if($elements_to_print[7] == 1)
 			{
-				$element_list .= "\t<li class=\"rss_guid\">" . $rss_array[$cur_str]["GUID"] . "</li>\n";
+				$element_list .= "\t<div class=\"rss_guid\">" . $rss_array[$cur_str]["GUID"] . "</div>\n";
 			}
 			if($elements_to_print[8] == 1)
 			{
-				$element_list .= "\t<li class=\"rss_pubdate\">" . $rss_array[$cur_str]["PUBDATE"] . "</li>\n";
+				$element_list .= "\t<div class=\"rss_pubdate\">" . $rss_array[$cur_str]["PUBDATE"] . "</div>\n";
 			}
 			if($elements_to_print[9] == 1)
 			{
 				// TODO: this element has attributes
-				$element_list .= "\t<li class=\"rss_source\">" . $rss_array[$cur_str]["SOURCE"] . "</li>\n";
+				$element_list .= "\t<div class=\"rss_source\">" . $rss_array[$cur_str]["SOURCE"] . "</div>\n";
 			}
 
-			$element_list .= "</ul><br />\n";
+			$element_list .= "</div><br />\n";
 		}
 
 		return $element_list;
