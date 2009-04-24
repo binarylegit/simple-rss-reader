@@ -36,6 +36,7 @@ class RSSReader
 	// no_of_items - 0 means all items
 	// WARNING: this function's signature is very likely to change.
 	// TODO: increase the documentation for this function
+	// TODO: allow the order of the elements to be modified through the function call
 	public static function rss_array_to_html($rss_array, $no_of_items = 0, $summary_length = 100, $elements_to_print = "1111111111", $href_title = false)
 	{
 		// unnecessary

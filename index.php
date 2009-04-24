@@ -14,6 +14,40 @@
 
 	//]]>
 	</script>
+
+
+	<style type="text/css">
+
+		div.rss_container
+		{
+			padding-left: 10px;
+			border-left: #000000 dotted 1px;
+		}
+
+		div.rss_title
+		{
+			border-bottom: #000077 dashed 1px;
+		}
+
+		div.rss_pubdate
+		{
+			border-top: #000077 dashed 1px;
+			font-size:10px;
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+	</style>
 </head>
 <body onload="" onunload="">
 <?PHP 
@@ -25,7 +59,7 @@
 	$rss_data = $rss_reader->parse_file();
 	//var_dump($rss_data);
 	//echo RSSReader::rss_array_to_html($rss_data); // smallest possible function call
-	echo RSSReader::rss_array_to_html($rss_data, 7, 0, "1110000000", true);
+	echo RSSReader::rss_array_to_html($rss_data, 3, 0, "1010000010", true);
 ?>
 
 </body>
