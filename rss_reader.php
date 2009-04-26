@@ -36,11 +36,10 @@ class RSSReader
 	// no_of_items - 0 means all items
 	// WARNING: this function's signature is very likely to change.
 	// TODO: increase the documentation for this function
-	// TODO: allow the order of the elements to be modified through the function call
-	public static function rss_array_to_html($rss_array, $no_of_items = 0, $summary_length = 100, $elements_to_print = "1111111111", $href_title = false)
+	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
+	public static function rss_array_to_html(&$rss_array, $no_of_items = 0, $summary_length = 100, $elements_to_print = "0123456789", $href_title = false)
 	{
-		// unnecessary
-		//$element_print = str_split($elements_to_print);
+		// get the number of items to print
 		if( ( $no_of_items == 0 ) || ( $no_of_items > $rss_array["item_count"] ) )
 		{
 			$max_items = $rss_array["item_count"];
@@ -48,30 +47,91 @@ class RSSReader
 			$max_items = $no_of_items;
 		}
 
-		echo "max_items: " . $max_items . "<br />";
+		//echo "max_items: " . $max_items . "<br />"; // DEBUG
 
 		$element_list = "";
-		for($i = 1; $i <= $max_items; $i++)
+		for($item_count = 1; $item_count <= $max_items; $item_count++)
 		{
-			$cur_str = "item_" . $i;
+			$cur_str = "item_" . $item_count;
 			$element_list .= "<div class=\"rss_container\">\n";
-			if($elements_to_print[0] == 1)
+			
+			for($element_count = 0; $element_count < strlen($elements_to_print); $element_count++)
 			{
+				//echo "parsing element: " . $elements_to_print[$element_count]; // DEBUG
+				$element_list .= RSSReader::get_element_div_wrapper($rss_array[$cur_str], $elements_to_print[$element_count], $href_title);
+
+			}
+
+			$element_list .= "</div><br />\n";
+		}
+
+		return $element_list;
+		
+	}
+
+	// TODO: move this below get_element_div_wrapper
+	private static function get_element_name_from_no($element_no)
+	{
+	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
+		switch($element_no)
+		{
+			case 0:
+				return "title";
+			case 1:
+				return "link";
+			case 2:
+				return "description";
+			case 3:
+				return "author";
+			case 4:
+				return "category";
+			case 5:
+				return "comments";
+			case 6:
+				return "enclosure";
+			case 7:
+				return "guid";
+			case 8:
+				return "pubdate";
+			case 9:
+				return "source";
+			default:
+				break;
+		}
+
+		return null;
+	}
+				
+
+
+	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
+	private static function get_element_div_wrapper(&$rss_item_array, $element_no, $href_title=false)
+	{
+
+		$element_name = RSSReader::get_element_name_from_no($element_no);
+		//echo "PARSING element: " . $element_name . "<br />"; // DEBUG
+
+		// elements with attr's: 9 7 4 6 
+		// elements with special issues: 0 2 5
+		$str_to_ret = "";
+
+		switch ($element_no)
+		{
+
+			case 0: // title
 				if($href_title)
 				{
-					$element_list .= "\t<div class=\"rss_title\"><a href=\"" . $rss_array[$cur_str]["LINK"] . "\">" . $rss_array[$cur_str]["TITLE"] . "</a></div>\n";
+					$str_to_ret = "\t<div class=\"rss_" . $element_name . "\"><a href=\"" . $rss_item_array[RSSReader::get_element_name_from_no(1)] . "\">" . $rss_item_array[$element_name] . "</a></div>\n";
 				} else {
-					$element_list .= "\t<div class=\"rss_title\">" . $rss_array[$cur_str]["TITLE"] . "</div>\n";
+					$str_to_ret = "\t<div class=\"rss_" . $element_name . "\">" . $rss_item_array[$element_name] . "</div>\n";
 				}
-			}
-			if($elements_to_print[1] == 1)
-			{
-				$element_list .= "\t<div class=\"rss_link\">" . $rss_array[$cur_str]["LINK"] . "</div>\n";
-			}
-			if($elements_to_print[2] == 1)
-			{
+				break;
+			case 1: // link
+				$str_to_ret = "\t<div class=\"rss_" . $element_name . "\"><a href=\"" . $rss_item_array[$element_name] . "\">" . $rss_item_array[$element_name] . "</a></div>\n";
+				break;
+			case 2: // description
 				// TODO: eventually the logic of summarizing to the nearest word should be broken out into a new function
-				$desc = strip_tags($rss_array[$cur_str]["DESCRIPTION"]);
+				$desc = strip_tags($rss_item_array[$element_name]);
 
 				if($summary_length != 0)
 				{
@@ -84,45 +144,20 @@ class RSSReader
 
 					$desc = substr($desc, 0, $summary_length);
 				}
-					
-				$element_list .= "\t<div class=\"rss_description\">" . $desc . "</div>\n";
-			}
-			if($elements_to_print[3] == 1)
-			{
-				$element_list .= "\t<div class=\"rss_author\">" . $rss_array[$cur_str]["AUTHOR"] . "</div>\n";
-			}
-			if($elements_to_print[4] == 1)
-			{
-				$element_list .= "\t<div class=\"rss_category\">" . $rss_array[$cur_str]["CATEGORY"] . "</div>\n";
-			}
-			if($elements_to_print[5] == 1)
-			{
-				$element_list .= "\t<div class=\"rss_comments\">" . $rss_array[$cur_str]["COMMENTS"] . "</div>\n";
-			}
-			if($elements_to_print[6] == 1)
-			{
+				
+				$str_to_ret .= "\t<div class=\"rss_description\">" . $desc . "</div>\n";
+				break;
+			case 6: // enclosure
 				// TODO: figure out how to deal with this element
-				//$element_list .= "\t<div class=\"rss_enclosure\">" . $rss_array[$cur_str][""] . "</div>\n";
-			}
-			if($elements_to_print[7] == 1)
-			{
-				$element_list .= "\t<div class=\"rss_guid\">" . $rss_array[$cur_str]["GUID"] . "</div>\n";
-			}
-			if($elements_to_print[8] == 1)
-			{
-				$element_list .= "\t<div class=\"rss_pubdate\">" . $rss_array[$cur_str]["PUBDATE"] . "</div>\n";
-			}
-			if($elements_to_print[9] == 1)
-			{
-				// TODO: this element has attributes
-				$element_list .= "\t<div class=\"rss_source\">" . $rss_array[$cur_str]["SOURCE"] . "</div>\n";
-			}
-
-			$element_list .= "</div><br />\n";
+				//$element_list .= "\t<div class=\"rss_enclosure\">" . $rss_item_array[""] . "</div>\n";
+				break;
+			default: // the rest
+				$str_to_ret = "\t<div class=\"rss_" . $element_name . "\">" . $rss_item_array[$element_name] . "</div>\n";
+				break;
 		}
 
-		return $element_list;
-		
+		return $str_to_ret;
+
 	}
 
 	/**
@@ -184,7 +219,7 @@ class RSSReader
 	{
 		if($this->inside_item_element && $this->current_element_name != "" && $this->current_element_name != "ITEM")
 		{
-			$this->rss_data[$this->current_item_name][$this->current_element_name] .= $data;
+			$this->rss_data[$this->current_item_name][strtolower($this->current_element_name)] .= $data;
 			//print "<b>&nbsp;&nbsp;&nbsp;" . $this->current_element_name . " :</b> " . $data . "<br />"; // DEBUG OUT
 		}
 	}
