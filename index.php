@@ -31,23 +31,12 @@
 
 		div.rss_pubdate
 		{
-			border-top: #000077 dashed 1px;
+			border-bottom: #000077 dashed 1px;
 			font-size:10px;
 		}
 
 
-
-
-
-
-
-
-
-
-
-
-
-	</style>
+	</style> 
 </head>
 <body onload="" onunload="">
 <?PHP 
@@ -59,7 +48,7 @@
 	$rss_data = $rss_reader->parse_file();
 	//var_dump($rss_data);
 	//echo RSSReader::rss_array_to_html($rss_data); // smallest possible function call
-	echo RSSReader::rss_array_to_html($rss_data, 3, 0, "1010000010", true);
+	echo RSSReader::rss_array_to_html($rss_data, 3, 0, "082", true);
 ?>
 
 </body>
