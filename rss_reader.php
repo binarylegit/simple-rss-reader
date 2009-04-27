@@ -58,7 +58,7 @@ class RSSReader
 			for($element_count = 0; $element_count < strlen($elements_to_print); $element_count++)
 			{
 				//echo "parsing element: " . $elements_to_print[$element_count]; // DEBUG
-				$element_list .= RSSReader::get_element_div_wrapper($rss_array[$cur_str], $elements_to_print[$element_count], $href_title);
+				$element_list .= RSSReader::get_element_div_wrapper($rss_array[$cur_str], $elements_to_print[$element_count], $summary_length, $href_title);
 
 			}
 
@@ -68,6 +68,76 @@ class RSSReader
 		return $element_list;
 		
 	}
+
+
+
+	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
+	private static function get_element_div_wrapper(&$rss_item_array, $element_no, $summary_length, $href_title=false)
+	{
+
+		$element_name = RSSReader::get_element_name_from_no($element_no);
+		//echo "PARSING element: " . $element_name . "<br />"; // DEBUG
+
+		// elements with attr's: 9 7 4 6 
+		// elements with special issues: 0 2 5
+		$str_to_ret = "";
+
+		switch ($element_no)
+		{
+
+			case 0: // title
+				if($href_title)
+				{
+					$str_to_ret = "\t<div class=\"rss_" . $element_name . "\"><a href=\"" . $rss_item_array[RSSReader::get_element_name_from_no(1)] . "\">" . $rss_item_array[$element_name] . "</a></div>\n";
+				} else {
+					$str_to_ret = "\t<div class=\"rss_" . $element_name . "\">" . $rss_item_array[$element_name] . "</div>\n";
+				}
+				break;
+			case 1: // link
+				$str_to_ret = "\t<div class=\"rss_" . $element_name . "\"><a href=\"" . $rss_item_array[$element_name] . "\">" . $rss_item_array[$element_name] . "</a></div>\n";
+				break;
+			case 2: // description
+				
+				$str_to_ret .= "\t<div class=\"rss_description\">" . RSSReader::get_safe_summary($rss_item_array[$element_name], $summary_length) . "</div>\n";
+				break;
+			case 6: // enclosure
+				// TODO: figure out how to deal with this element
+				//$element_list .= "\t<div class=\"rss_enclosure\">" . $rss_item_array[""] . "</div>\n";
+				break;
+			default: // the rest
+				$str_to_ret = "\t<div class=\"rss_" . $element_name . "\">" . $rss_item_array[$element_name] . "</div>\n";
+				break;
+		}
+
+		return $str_to_ret;
+
+	}
+
+
+	// summary_length = 0 -- means to use the entire thing
+	private static function get_safe_summary($text_to_summarize, $summary_length)
+	{
+
+		// TODO: eventually the logic of summarizing to the nearest word should be broken out into a new function
+		$desc = strip_tags($text_to_summarize);
+
+		if($summary_length != 0)
+		{
+			$cur_char = $desc[$summary_length];
+			while($cur_char != " ")
+			{
+				$summary_length--;
+				$cur_char = $desc[$summary_length];
+			}
+
+			$desc = substr($desc, 0, $summary_length);
+		}
+
+		return $desc;
+
+	}
+
+
 
 	// TODO: move this below get_element_div_wrapper
 	private static function get_element_name_from_no($element_no)
@@ -102,64 +172,6 @@ class RSSReader
 		return null;
 	}
 				
-
-
-	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
-	private static function get_element_div_wrapper(&$rss_item_array, $element_no, $href_title=false)
-	{
-
-		$element_name = RSSReader::get_element_name_from_no($element_no);
-		//echo "PARSING element: " . $element_name . "<br />"; // DEBUG
-
-		// elements with attr's: 9 7 4 6 
-		// elements with special issues: 0 2 5
-		$str_to_ret = "";
-
-		switch ($element_no)
-		{
-
-			case 0: // title
-				if($href_title)
-				{
-					$str_to_ret = "\t<div class=\"rss_" . $element_name . "\"><a href=\"" . $rss_item_array[RSSReader::get_element_name_from_no(1)] . "\">" . $rss_item_array[$element_name] . "</a></div>\n";
-				} else {
-					$str_to_ret = "\t<div class=\"rss_" . $element_name . "\">" . $rss_item_array[$element_name] . "</div>\n";
-				}
-				break;
-			case 1: // link
-				$str_to_ret = "\t<div class=\"rss_" . $element_name . "\"><a href=\"" . $rss_item_array[$element_name] . "\">" . $rss_item_array[$element_name] . "</a></div>\n";
-				break;
-			case 2: // description
-				// TODO: eventually the logic of summarizing to the nearest word should be broken out into a new function
-				$desc = strip_tags($rss_item_array[$element_name]);
-
-				if($summary_length != 0)
-				{
-					$cur_char = $desc[$summary_length];
-					while($cur_char != " ")
-					{
-						$summary_length--;
-						$cur_char = $desc[$summary_length];
-					}
-
-					$desc = substr($desc, 0, $summary_length);
-				}
-				
-				$str_to_ret .= "\t<div class=\"rss_description\">" . $desc . "</div>\n";
-				break;
-			case 6: // enclosure
-				// TODO: figure out how to deal with this element
-				//$element_list .= "\t<div class=\"rss_enclosure\">" . $rss_item_array[""] . "</div>\n";
-				break;
-			default: // the rest
-				$str_to_ret = "\t<div class=\"rss_" . $element_name . "\">" . $rss_item_array[$element_name] . "</div>\n";
-				break;
-		}
-
-		return $str_to_ret;
-
-	}
-
 	/**
 	 * Simple setter function to set the current file to be parsed
 	 * 
