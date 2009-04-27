@@ -31,12 +31,65 @@ class RSSReader
 
 
 
-	// turn the array produced from parse_file into an html list
+	// turn the array produced from parse_file into a collection of html div's
 	// summary length 0 means no summarizing, length specifies characters to the nearest word
 	// no_of_items - 0 means all items
-	// WARNING: this function's signature is very likely to change.
 	// TODO: increase the documentation for this function
 	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
+	/**
+	 * rss_array_to_html() will take an array in the form produced by parse_file()
+	 * and take every element within each item and turn it into a <div>.  Each 
+	 * <item>'s elements will be wrapped with another <div>.  All div's output will
+	 * be given a class name equal to 'rss_TAGNAME' where TAGNAME is equal to the
+	 * lowercase name of the RSS tag.  The div that wraps each item will be given
+	 * the class 'rss_item'. 
+	 * 
+	 * Several complex options exist for formatting the output of RSS <div>'s via 
+	 * this functions parameters, all parameters have default values and are not
+	 * required for the use of the function (except for the &$rss_array, which is
+	 * required).  Many of the required parameters impact only one element of each 
+	 * <item>.
+	 * 
+	 * The following list describes how the html output can be modified:
+	 *
+	 * 	no_of_items - refers to the number of items that are to be output.
+	 *		For instance a value of '3' will place the topmost (most
+	 *		recent) 3 <items> into <div> tags and return them.  A value
+	 *		of 0 (zero) will output all items available in the &$rss_array.
+	 *
+	 *	summary_length - refers to the summarized length of the <description>
+	 *		rss tag, the number given refers to character length.  The
+	 * 		description will be summarized (shortened) via the method of
+	 *		the private function get_safe_summary() (see internal
+	 *		documentation).
+	 *
+	 *	href_title - This boolean value will determine if the title element
+	 *		will be wrapped in an <a href=""> tag linking to the <link>
+	 *		elements location.  false will provide plain text, true will
+	 *		provide a hyperlink.
+	 *
+	 *	elements_to_print - This will determine which elements and in
+	 *		what order they are to be included in the output.  Each
+	 *		element within the <item> tag is assigned a number:
+	 * 			0 = title
+	 *			1 = link
+	 *			2 = description 
+	 *			3 = author
+	 *			4 = category
+	 *			5 = comments
+	 *			6 = enclosure
+	 *			7 = guid
+	 *			8 = pubdate
+	 *			9 = source
+	 *		by providing these number in a string will determine
+	 *		wether or not they are to be included in the output,
+	 *		and in what order they are to appear.
+	 *		For example: 0123456789 will print all elements in the
+	 *		order given in the list above; a value of "082" will
+	 *		output the title div, followed by the date div, followed
+	 *		by the description div.
+	 */
+	 // TODO: finish/proofread documentation
 	public static function rss_array_to_html(&$rss_array, $no_of_items = 0, $summary_length = 100, $elements_to_print = "0123456789", $href_title = false)
 	{
 		// get the number of items to print
@@ -180,7 +233,7 @@ class RSSReader
 	public function set_file_to_parse($rss_file)
 	{
 		$this->rss_file_to_parse = $rss_file;
-		print "the file to parse is: " .  $this->rss_file_to_parse . "<br />";
+		print "the file to parse is: " .  $this->rss_file_to_parse . "<br />"; // DEBUG
 	}
 		
 
