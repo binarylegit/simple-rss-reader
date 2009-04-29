@@ -2,21 +2,19 @@
 
 /**
  * RSSReader is designed to take an rss file and parse it's items into an array,
- * then that array can be turned into an HTML list via the static function 
- * rss_array_to_html().
+ * then that array can be turned into a collection of HTML <div>'s via the static 
+ * function rss_array_to_html().
  *
- * WARNING: This class is still very much under initial design and the 
- * function signatures, and function outputs are likely to change!
- * USE WITH CAUTION.
- * 
- * A very simple sample use would be:
- *	include_once("rss_reader.php");
- *	$rss_reader = new RSSReader();
- *	$rss_reader->set_file_to_parse("http://codingnotes.alephcipher.com");
+ * As an example of basic usage the sequence of calls would be:
+ * 	$rss_reader = new RSSReader();
+ *	$rss_reader->set_file_to_parse("http://[WEBSITE-NAME]/feed.xml");
  *	$rss_data = $rss_reader->parse_file();
  *	echo RSSReader::rss_array_to_html($rss_data);
  *
+ * Alternately the array returned by 'parse_file()' could be used in other ways
+ * as determined by the user of this class.
  *
+ * @author Daniel Fowler (www.alephcipher.com)
  */
 class RSSReader
 {
@@ -29,16 +27,9 @@ class RSSReader
 
 
 
-
-
-	// turn the array produced from parse_file into a collection of html div's
-	// summary length 0 means no summarizing, length specifies characters to the nearest word
-	// no_of_items - 0 means all items
-	// TODO: increase the documentation for this function
-	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
 	/**
 	 * rss_array_to_html() will take an array in the form produced by parse_file()
-	 * and take every element within each item and turn it into a <div>.  Each 
+	 * and take every element within each <item> and turn it into a <div>.  Each 
 	 * <item>'s elements will be wrapped with another <div>.  All div's output will
 	 * be given a class name equal to 'rss_TAGNAME' where TAGNAME is equal to the
 	 * lowercase name of the RSS tag.  The div that wraps each item will be given
@@ -88,8 +79,48 @@ class RSSReader
 	 *		order given in the list above; a value of "082" will
 	 *		output the title div, followed by the date div, followed
 	 *		by the description div.
+	 * 
+	 * Outside of this functions parameters the resulting <div>'s have css
+	 * class attributes.  This allows the resulting HTML to be styled via
+	 * css, as desired by the user of this class.  The css classname for each
+	 * div is the combination of "rss_" and the lowercase name of the element
+	 * (see the list in elements_to_print).  The <div> that surrounds the
+	 * list of other divs is under the style class 'rss_item'.
+	 *
+	 * <b>WARNING</b>: It should be noted that as it currently stands there is
+	 * no way of retrieving or displaying the contents of any rss element attributes.
+	 *
+	 * @param array &$rss_array An array in the format produced by parse_file() 
+	 *			containing the item arrays which contain the elements
+	 *			of their particular item.
+	 * @param int $no_of_items The number of items in from the rss_array to turn
+	 *			into and output in HTML <div>'s.  A value of 0 (zero)
+	 *			will output all available rss <item>'s.  Default value
+	 *			is 0 (zero).
+	 * @param int $summary_length The length (in characters) that the <description>
+	 *			element should be shortened to.  Default value is 100.
+	 * @param string $elements_to_print See this functions main documentation for  
+	 *			a more thorough explanation.  This value determines which
+	 *			RSS elements will be output and in what order.  Each element
+	 *			within the RSS element <item> is given an number (see above)
+	 *			this string is then a list of numbers that describe the 
+	 *			order (left->right <=> top ->bottom) and which elements
+	 *			will be output.  By not including a number in the string
+	 *			that element will not be output.  Default value is:
+	 *			"0123456789" which will print all available elements
+	 *			cdata in the order they are listed in the rss 2.0
+	 *			documentation {@link http://www.rssboard.org/rss-specification#hrelementsOfLtitemgt RSS 2.0 Specification}.
+	 * @param bool $href_title True will place an href link surrounding the title,
+	 *			linking to the rss element <link>'s location.  False
+	 *			(the default) will not place the link and the title
+	 *			will be plain text.
+	 * @return string a string containing html <div>'s in the specified format
+	 *			as determined by the attribute values of this function.
+	 * @author Daniel Fowler (www.alephcipher.com)
+	 * 
+	 *	
 	 */
-	 // TODO: finish/proofread documentation
+	 // TODO: finish/proofread documentation, make documentation HTML safe.
 	public static function rss_array_to_html(&$rss_array, $no_of_items = 0, $summary_length = 100, $elements_to_print = "0123456789", $href_title = false)
 	{
 		// get the number of items to print
