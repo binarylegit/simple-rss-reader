@@ -156,6 +156,9 @@ class RSSReader
 
 
 	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
+	//This function wraps a given rss element into a <div> wrapper with any
+	// special formatting that is necessary.
+	// TODO: increase documentation
 	private static function get_element_div_wrapper(&$rss_item_array, $element_no, $summary_length, $href_title=false)
 	{
 
@@ -199,6 +202,10 @@ class RSSReader
 
 
 	// summary_length = 0 -- means to use the entire thing
+	// This function takes text, strips the HTML tags and then cuts it to the
+	// number of characters given by $summary_length, however it subtracts characters
+	// to the nearest word, such that it won't cut off words (thus the "safe")
+	// TODO: increase documentation
 	private static function get_safe_summary($text_to_summarize, $summary_length)
 	{
 
@@ -223,7 +230,8 @@ class RSSReader
 
 
 
-	// TODO: move this below get_element_div_wrapper
+	// This function translates a number to an element name
+	// TODO: increase documentation
 	private static function get_element_name_from_no($element_no)
 	{
 	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
@@ -261,6 +269,7 @@ class RSSReader
 	 * 
 	 * @param $rss_file The uri of a file to parse
 	 */
+	// TODO: increase documentation
 	public function set_file_to_parse($rss_file)
 	{
 		$this->rss_file_to_parse = $rss_file;
@@ -269,6 +278,7 @@ class RSSReader
 		
 
 	// handles the action to take when an rss element is reached
+	// TODO: increase documentation
 	private function rss_start_element_handler($parser, $name, $attribs)
 	{
 		/* DEBUG OUT
@@ -293,6 +303,7 @@ class RSSReader
 
 
 	// handles the action to take when leaving an rss element
+	// TODO: increase documentation
 	private function rss_end_element_handler($parser, $name)
 	{
 		// print "end of element: " . $name . "<br />"; // DEBUG
@@ -311,6 +322,7 @@ class RSSReader
 	}
 
 	// handles the character data within rss elements
+	// TODO: increase documentation
 	private function cdata_handler($parser, $data)
 	{
 		if($this->inside_item_element && $this->current_element_name != "" && $this->current_element_name != "ITEM")
