@@ -90,6 +90,8 @@ class RSSReader
 	 * <b>WARNING</b>: It should be noted that as it currently stands there is
 	 * no way of retrieving or displaying the contents of any rss element attributes.
 	 *
+	 * @author Daniel Fowler (www.alephcipher.com)
+	 *
 	 * @param array &$rss_array An array in the format produced by parse_file() 
 	 *			containing the item arrays which contain the elements
 	 *			of their particular item.
@@ -116,7 +118,6 @@ class RSSReader
 	 *			will be plain text.
 	 * @return string a string containing html <div>'s in the specified format
 	 *			as determined by the attribute values of this function.
-	 * @author Daniel Fowler (www.alephcipher.com)
 	 * 
 	 *	
 	 */
@@ -155,18 +156,50 @@ class RSSReader
 
 
 
-	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
-	//This function wraps a given rss element into a <div> wrapper with any
-	// special formatting that is necessary.
-	// TODO: increase documentation
+	/** 
+	 * This function will take a single rss <item> array and according to the
+	 * other attributes will wrap an HTML <div> around the cdata of the rss
+	 * element specified by 'element_no'.  Some elements have special case
+	 * issues, these are elements 0(title), 1(link), 2(description), and 
+	 * 6(enclosure).  The special issues are:
+	 *	0 - according to parameter $href_title this may or may not be linked
+	 *		via an HTML <a href> to the rss <link> location.
+	 *	1 - this is wrapped in both a <div> and <a href> linking to its own
+	 *		location.
+	 *	2 - the description may be shortened to	the number of characters 
+	 *		specified by $summary_length.
+	 *	6 - this rss element only has attributes which are currently not
+	 *		dealt with and thus it returns nothing.
+	 *
+	 * Other than these special cases a simple <div> wrapper will be 
+	 * produced and returned.
+	 *
+	 * @author Daniel Fowler (www.alephcipher.com)
+	 *
+	 * @param array &$rss_item_array an array containing the rss elements of a 
+	 *		single rss <item> such that the elements can be referenced
+	 *		in the array by name (e.g. $rss_item_array['description'])
+	 * @param int $element_no a number between (and including) 0(zero) and 10 
+	 *		that specifies the element to wrap in a div.  The number
+	 *		refers to an element as specified by get_element_name_from_no().
+	 * @param int $summary_length the length as specified by get_safe_summary() that
+	 *		the description should be shortened too, this is only used if
+	 *		$element_no refers to the description element.
+	 * @param bool $href_title true will add an HTML <a href> to the title element
+	 *		linking to the location given by the <link> element.  False
+	 *		will not (default).
+	 * @return string returns the HTML formatted content of rss element.
+	 * 
+	 */
 	private static function get_element_div_wrapper(&$rss_item_array, $element_no, $summary_length, $href_title=false)
 	{
 
 		$element_name = RSSReader::get_element_name_from_no($element_no);
 		//echo "PARSING element: " . $element_name . "<br />"; // DEBUG
 
+
 		// elements with attr's: 9 7 4 6 
-		// elements with special issues: 0 2 5
+		// elements with special issues: 0 1 2 6
 		$str_to_ret = "";
 
 		switch ($element_no)
@@ -201,15 +234,21 @@ class RSSReader
 	}
 
 
-	// summary_length = 0 -- means to use the entire thing
-	// This function takes text, strips the HTML tags and then cuts it to the
-	// number of characters given by $summary_length, however it subtracts characters
-	// to the nearest word, such that it won't cut off words (thus the "safe")
-	// TODO: increase documentation
+	/** 
+	 * This function takes text, strips the HTML tags and then cuts it to the
+	 * number of characters given by $summary_length, however it subtracts characters
+	 * to the nearest word, such that it won't cut off words (thus the "safe")
+	 * 
+	 * @author Daniel Fowler (www.alephcipher.com)
+	 * @param string $text_to_summarize the text that is to be shortened.
+	 * @param int $summary_length the length in characters that the string
+	 *	is to be shortened to.  A value of 0 (zero) will simply strip
+	 *	the HTML tags and leave it at its original length.
+	 * @return string the shortened string.
+	 */
 	private static function get_safe_summary($text_to_summarize, $summary_length)
 	{
 
-		// TODO: eventually the logic of summarizing to the nearest word should be broken out into a new function
 		$desc = strip_tags($text_to_summarize);
 
 		if($summary_length != 0)
@@ -230,11 +269,27 @@ class RSSReader
 
 
 
-	// This function translates a number to an element name
-	// TODO: increase documentation
+	/** 
+	 * This function translates between an element number and its string
+	 * name.  The following translations take place:
+	 *		0 = title
+	 *		1 = link
+	 *		2 = description 
+	 *		3 = author
+	 *		4 = category
+	 *		5 = comments
+	 *		6 = enclosure
+	 *		7 = guid
+	 *		8 = pubdate
+	 *		9 = source
+	 *
+	 * @author Daniel Fowler (www.alephcipher.com)
+	 * @param int $element_no the number to translate to a string name
+	 * @return string the text/string name of the element referred to by
+	 *		$element_no
+	 */
 	private static function get_element_name_from_no($element_no)
 	{
-	// item elements: 0=title, 1=link, 2=description, 3=author, 4=category, 5=comments, 6=enclosure, 7=guid, 8=pubdate, 9=source
 		switch($element_no)
 		{
 			case 0:
@@ -265,20 +320,22 @@ class RSSReader
 	}
 				
 	/**
-	 * Simple setter function to set the current file to be parsed
+	 * Setter function to set the current file to be parsed.
+	 * Tested options are file and http URI's, for further
+	 * possible options see php.net's documentation of fopen.
+	 * {@link http://us2.php.net/manual/en/function.fopen.php PHP.net:fopen()}
 	 * 
-	 * @param $rss_file The uri of a file to parse
+	 * @author Daniel Fowler (www.alephcipher.com)
+	 * @param $rss_file The uri of a file to parse.
 	 */
-	// TODO: increase documentation
 	public function set_file_to_parse($rss_file)
 	{
 		$this->rss_file_to_parse = $rss_file;
-		print "the file to parse is: " .  $this->rss_file_to_parse . "<br />"; // DEBUG
+		//print "the file to parse is: " .  $this->rss_file_to_parse . "<br />"; // DEBUG
 	}
 		
 
 	// handles the action to take when an rss element is reached
-	// TODO: increase documentation
 	private function rss_start_element_handler($parser, $name, $attribs)
 	{
 		/* DEBUG OUT
@@ -303,7 +360,6 @@ class RSSReader
 
 
 	// handles the action to take when leaving an rss element
-	// TODO: increase documentation
 	private function rss_end_element_handler($parser, $name)
 	{
 		// print "end of element: " . $name . "<br />"; // DEBUG
@@ -322,7 +378,6 @@ class RSSReader
 	}
 
 	// handles the character data within rss elements
-	// TODO: increase documentation
 	private function cdata_handler($parser, $data)
 	{
 		if($this->inside_item_element && $this->current_element_name != "" && $this->current_element_name != "ITEM")
@@ -334,13 +389,20 @@ class RSSReader
 
 
 	/**
- 	* this is the main function for the rss_reader, it takes either a local relative or absolute
- 	* resource or a non-local http absolute resource.  It returns an array with each item in the 
- 	* array being one rss <item> in an html context.
+ 	* This function initiates the parsing of the rss file as set by 
+	* set_file_to_parse(). It translates the rss file into an array 
+	* of arrays.  The second array's contain the elements within each
+	* rss <item>.  This array can then be translated further into HTML
+	* via the function rss_array_to_html.
+	*
+	* The second array can be referenced with names refering to specific
+	* <item> tags via the name "item_#" where # is the number given to that
+	* <item> (e.g. array[ITEM_1]) the lower the number the topmost (most
+	* recent the item is in the feed.
 	* 
-	* @return returns an array containing other arrays which contain the information inside RSS <ITEM> tags
+	* @return returns an array containing other arrays which contain 
+	* 	the elements inside RSS <ITEM> tags.
  	*/
-	// TODO: ^^ make this documentation more thorough
 	public function parse_file()
 	{
 
